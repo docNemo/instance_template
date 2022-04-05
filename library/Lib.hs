@@ -1,3 +1,4 @@
+{-# LANGUAGE LambdaCase #-}
 module Lib where
 
 data Singleton a = Singleton a deriving (Eq, Show)
@@ -11,26 +12,28 @@ data NotEmpty a = LastValue a | MidValue a (NotEmpty a) deriving (Eq, Show)
 
 instance Functor Singleton where
   -- TODO
-  fmap = undefined
+  -- fmap f (Singleton a) = Singleton (f a)
+  fmap f (Singleton a) = Singleton $ f a
 
 instance Applicative Singleton  where
   -- TODO
-  pure = undefined
-  (<*>) = undefined
+  pure = Singleton
+  (Singleton a) <*> (Singleton b) = Singleton (a b)
+  -- (Singleton a) (<*>) x = f <$> x
 
 instance Monad Singleton where
   -- TODO
-  (>>=) = undefined
+ (Singleton x) >>= f = f x
 
 instance Foldable Singleton where
   -- TODO
-    foldMap = undefined
+    foldMap f (Singleton x) = f x
     -- или
     -- foldr = undefined
 
 instance Traversable Singleton where
   -- TODO
-  sequenceA = undefined
+  sequenceA (Singleton x) = Singleton <$> x
   -- или
   -- traverse = undefined
 
@@ -38,26 +41,26 @@ instance Traversable Singleton where
 
 instance Functor (Productish x) where
   -- TODO
-  fmap = undefined
+  fmap f (Productish a b) = Productish a $ f b
 
 instance (Monoid a) => Applicative (Productish a) where
   -- TODO
-  pure = undefined
-  (<*>) = undefined
+  pure x = Productish mempty x
+  (Productish a f) <*> (Productish b c) =  Productish (a <> b) (f c)
 
 instance (Monoid a) => Monad (Productish a) where
   -- TODO
-  (>>=) = undefined
+  (Productish u a) >>= k = case k a of (Productish v b) -> Productish (u <> v) b;
 
 instance Foldable (Productish a) where
   -- TODO
-    foldMap = undefined
+    foldMap f (Productish _ b) = f b
     -- или
     -- foldr = undefined
 
 instance Traversable (Productish a) where
   -- TODO
-  sequenceA = undefined
+  sequenceA (Productish a b) =  Productish a <$> b
   -- или
   -- traverse = undefined
 
@@ -65,26 +68,33 @@ instance Traversable (Productish a) where
 
 instance Functor (Summish a) where
   -- TODO
-  fmap = undefined
+  fmap f = \case
+              First x -> First x
+              Second y -> Second (f y)
 
 instance Applicative (Summish a) where
   -- TODO
-  pure = undefined
-  (<*>) = undefined
+  pure = Second
+  First a <*> _ = First a
+  Second f <*> b = fmap f b
 
 instance Monad (Summish a) where
   -- TODO
-  (>>=) = undefined
+  First a >>= _ = First a
+  Second b >>= c = c b
 
 instance Foldable (Summish a) where
   -- TODO
-    foldMap = undefined
+    foldMap _ (First _) = mempty 
+    foldMap f (Second b) = f b
     -- или
     -- foldr = undefined
 
 instance Traversable (Summish a) where
   -- TODO
-  sequenceA = undefined
+  -- sequenceA = undefined
+  sequenceA (First x) = pure (First x)
+  sequenceA (Second b) = Second <$> b
   -- или
   -- traverse = undefined
 
@@ -93,26 +103,31 @@ instance Traversable (Summish a) where
 
 instance Functor Optional where
   -- TODO
-  fmap = undefined
+  fmap _ NoValue = NoValue
+  fmap f (HasValue a) = HasValue (f a)
 
 instance Applicative Optional where
   -- TODO
-  pure = undefined
-  (<*>) = undefined
+  pure = HasValue
+  NoValue <*> _ = NoValue
+  HasValue f <*> a = fmap f a
 
 instance Monad Optional where
   -- TODO
-  (>>=) = undefined
+  NoValue >>= _ = NoValue 
+  (HasValue a) >>= k = k a
 
 instance Foldable Optional where
   -- TODO
-    foldMap = undefined
+    foldMap _ NoValue = mempty 
+    foldMap f (HasValue x) = f x
     -- или
     -- foldr = undefined
 
 instance Traversable Optional where
   -- TODO
-  sequenceA = undefined
+  sequenceA NoValue =  pure NoValue
+  sequenceA (HasValue a) = HasValue <$> a
   -- или
   -- traverse = undefined
 
