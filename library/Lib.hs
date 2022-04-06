@@ -192,7 +192,8 @@ instance Applicative NotEmpty where
 instance Monad NotEmpty where
   -- TODO
   -- (LastValue a) >>= f = f a
-  -- (MidValue a b) >>= f = MidValue (f a) (b >>= f)
+  -- (MidValue a b) >>= f = MidValue a (b >>= f)
+
 
 instance Foldable NotEmpty where
   -- TODO
