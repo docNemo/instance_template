@@ -136,7 +136,8 @@ instance Traversable Optional where
 
 instance Functor NotQuiteList where
   -- TODO
-  fmap = undefined
+  fmap f (Value a) = Value $ f a
+  fmap f (Layer a) = Layer (fmap f a)
 
 instance Applicative NotQuiteList where
   -- TODO
