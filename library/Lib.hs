@@ -141,8 +141,12 @@ instance Functor NotQuiteList where
 
 instance Applicative NotQuiteList where
   -- TODO
-  pure = undefined
-  (<*>) = undefined
+  pure x = Value x
+  (Value f) <*> (Value a) = Value (f a)
+  (Value f) <*> (Layer a) = Layer (f <$> a)
+  (Layer f) <*> (Layer a) = Layer (f <*> a)
+  (Layer f) <*> (Value a) = Layer (f <*> Value a)
+
 
 instance Monad NotQuiteList where
   -- TODO
