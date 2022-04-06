@@ -150,7 +150,8 @@ instance Applicative NotQuiteList where
 
 instance Monad NotQuiteList where
   -- TODO
-  (>>=) = undefined
+  (Value x) >>= f = f x
+  (Layer x) >>= f = Layer (x >>= f)
 
 instance Foldable NotQuiteList where
   -- TODO
