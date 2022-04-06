@@ -145,7 +145,7 @@ instance Applicative NotQuiteList where
   pure x = Value x
   (Value f) <*> (Value a) = Value (f a)
   (Value f) <*> (Layer a) = Layer (f <$> a)
-  (Layer f) <*> (Layer a) = Layer (f <*> a)
+  (Layer f) <*> (Layer a) = Layer $ Layer (f <*> a)
   (Layer f) <*> (Value a) = Layer (f <*> Value a)
 
 
@@ -190,7 +190,7 @@ instance Applicative NotEmpty where
 
 
 instance Monad NotEmpty where
-  -- TODO
+  -- -- TODO
   -- (LastValue a) >>= f = f a
   -- (MidValue a b) >>= f = MidValue a (b >>= f)
 
