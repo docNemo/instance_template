@@ -141,6 +141,7 @@ instance Functor NotQuiteList where
 
 instance Applicative NotQuiteList where
   -- TODO
+  -- pure x = Value x
   pure x = Value x
   (Value f) <*> (Value a) = Value (f a)
   (Value f) <*> (Layer a) = Layer (f <$> a)
@@ -163,33 +164,48 @@ instance Foldable NotQuiteList where
 
 instance Traversable NotQuiteList where
   -- TODO
-  sequenceA = undefined
+  -- sequenceA = \case
+  --     Value a -> fmap Value a
+  --     Layer a -> Layer (sequenceA a)
   -- или
-  -- traverse = undefined
+  traverse f = \case
+      Value a -> Value <$> f a
+      Layer a -> Layer <$> traverse f a
 
 -- NotEmpty
 
 instance Functor NotEmpty where
   -- TODO
-  fmap = undefined
+  fmap f (LastValue a) = LastValue $ f a
+  fmap f (MidValue a b) = MidValue (f a) (fmap f b)
+
 
 instance Applicative NotEmpty where
   -- TODO
-  pure = undefined
-  (<*>) = undefined
+  pure x = LastValue x
+  (LastValue f) <*> (LastValue x) = LastValue (f x)
+  (LastValue f) <*> (MidValue x g) = MidValue (f x) (f <$> g)
+  (MidValue f l) <*> (MidValue x g) = MidValue (f x) (l <*> g)
+  (MidValue f l) <*> (LastValue x) = MidValue (f x) (l <*> LastValue x)
+
 
 instance Monad NotEmpty where
   -- TODO
-  (>>=) = undefined
+  -- (LastValue a) >>= f = f a
+  -- (MidValue a b) >>= f = MidValue (f a) (b >>= f)
 
 instance Foldable NotEmpty where
   -- TODO
-    foldMap = undefined
+    foldMap f = \case
+        LastValue a -> f a
+        MidValue a b -> f a <> foldMap f b
     -- или
     -- foldr = undefined
 
 instance Traversable NotEmpty where
   -- TODO
-  sequenceA = undefined
+  -- sequenceA = undefined
   -- или
-  -- traverse = undefined
+  traverse f = \case
+      LastValue a -> LastValue <$> f a
+      MidValue a b -> MidValue <$> f a <*> traverse f b
