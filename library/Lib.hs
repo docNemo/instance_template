@@ -155,7 +155,9 @@ instance Monad NotQuiteList where
 
 instance Foldable NotQuiteList where
   -- TODO
-    foldMap = undefined
+    foldMap f = \case
+        Value a -> f a
+        Layer a -> foldMap f a
     -- или
     -- foldr = undefined
 
