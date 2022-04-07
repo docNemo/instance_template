@@ -187,7 +187,6 @@ instance Applicative NotEmpty where
   -- (LastValue f) <*> (MidValue x g) = MidValue (f x) (f <$> g)
   -- (MidValue f l) <*> (MidValue x g) = MidValue (f x) (l <*> g)
   -- (MidValue f l) <*> (LastValue x) = MidValue (f x) (l <*> LastValue x)
-  -- fs <*> xs = concatMap1 (\f -> fmap f xs) fs
   fs <*> xs = foldr1 (<>) $ (`fmap` xs) <$> fs
 
 instance Monad NotEmpty where
