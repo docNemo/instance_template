@@ -85,7 +85,7 @@ instance Monad (Summish a) where
 
 instance Foldable (Summish a) where
   -- TODO
-    foldMap _ (First _) = mempty 
+    foldMap _ (First _) = mempty
     foldMap f (Second b) = f b
     -- или
     -- foldr = undefined
@@ -114,12 +114,12 @@ instance Applicative Optional where
 
 instance Monad Optional where
   -- TODO
-  NoValue >>= _ = NoValue 
+  NoValue >>= _ = NoValue
   (HasValue a) >>= k = k a
 
 instance Foldable Optional where
   -- TODO
-    foldMap _ NoValue = mempty 
+    foldMap _ NoValue = mempty
     foldMap f (HasValue x) = f x
     -- или
     -- foldr = undefined
@@ -183,16 +183,25 @@ instance Functor NotEmpty where
 instance Applicative NotEmpty where
   -- TODO
   pure x = LastValue x
-  (LastValue f) <*> (LastValue x) = LastValue (f x)
-  (LastValue f) <*> (MidValue x g) = MidValue (f x) (f <$> g)
-  (MidValue f l) <*> (MidValue x g) = MidValue (f x) (l <*> g)
-  (MidValue f l) <*> (LastValue x) = MidValue (f x) (l <*> LastValue x)
-
+  -- (LastValue f) <*> (LastValue x) = LastValue (f x)
+  -- (LastValue f) <*> (MidValue x g) = MidValue (f x) (f <$> g)
+  -- (MidValue f l) <*> (MidValue x g) = MidValue (f x) (l <*> g)
+  -- (MidValue f l) <*> (LastValue x) = MidValue (f x) (l <*> LastValue x)
+  -- fs <*> xs = concatMap1 (\f -> fmap f xs) fs
+  fs <*> xs = foldr1 (<>) $ (`fmap` xs) <$> fs
 
 instance Monad NotEmpty where
   -- -- TODO
   -- (LastValue a) >>= f = f a
-  -- (MidValue a b) >>= f = MidValue a (b >>= f)
+  -- (MidValue a b) >>= f = foldr1 (<>) (f <$> b)
+  -- b >>= f = foldr1 (<>) (f <$> b)
+  b >>= f = foldr1 (<>) (f <$> b)
+  -- x >>= f = foldr1 (<>) $ f <$> x
+
+instance Semigroup (NotEmpty a) where
+  -- (LastValue a) <> (LastValue b) = MidValue a b
+  (LastValue a) <> b = MidValue a b
+  (MidValue a b) <> c = MidValue a (b <> c)
 
 
 instance Foldable NotEmpty where
